@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Small Shop</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f9f9f9;
+    }
+    .product {
+      background: white;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    h2 { color: #333; }
+    p { color: #555; }
+    .price {
+      font-size: 1.5rem;
+      margin: 10px 0;
+      color: #d35400;
+    }
+   
+    .buy-btn:hover {
+      background: #219150;
+    }
+    .buy-area { display:flex; gap:12px; align-items:center; }
+    .qrcode-box { width:150px; height:150px; display:flex; align-items:center; justify-content:center; border:1px solid #ddd; padding:8px; border-radius:8px; background:#fafafa; }
+    .hidden { display:none; }
+    /* Simple modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; }
+    .modal { background:white; padding:20px; border-radius:10px; box-shadow:0 6px 30px rgba(0,0,0,0.25); max-width:320px; text-align:center; }
+    button { padding:10px 14px; border-radius:6px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+    button.primary { background:#0066ff; color:#fff; border-color:#0051d4; }
+    
+  </style>
+</head>
+<body>
+  <div class="product">
+    <img src="./images/saree_circle.png" alt="Product Image">
+    <h2>Handmade Craft</h2>
+    <p>Beautiful handmade item, perfect for gifting.</p>
+    <p class="price">₹499</p>
+    <!-- Replace link with your Razorpay/Stripe/PayPal payment link -->
+   <!--<a href="https://rzp.io/l/your-payment-link" class="buy-btn">Buy Now</a>-->
+   <div class="buy-area">
+    <button id="buyBtn" class="primary">Buy</button>
+    <!-- Inline QR area (visible by default) -->
+    <div id="inlineQR" class="qrcode-box" aria-hidden="false"></div>
+
+    <!-- Toggle to hide/show inline QR -->
+    <button id="toggleInline">Hide QR</button>
+   
+  </div>
+  <div>
+    <p style="margin-top:12px;font-size:0.95rem;color:#555">
+        Tip: you can scan the QR code with your phone to open the payment link.
+      </p>
+    </div>
+     <!-- Modal (hidden initially) -->
+  <div id="qrModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-backdrop" id="backdrop" style="display:flex;">
+      <div class="modal" role="document">
+        <h3 id="modalTitle">Scan to Pay</h3>
+        <div id="modalQR" style="margin:12px auto;width:200px;height:200px;"></div>
+        <p style="font-size:0.9rem;color:#444">Or <a id="openLink" href="#" target="_blank" rel="noopener">open payment link</a></p>
+        <div style="margin-top:10px">
+          <button id="closeModal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QRCode.js from jsDelivr -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
+  <script>
+    (function() {
+      // Put your actual payment URL here:
+      const PAYMENT_URL = "https://example.com/pay?product=awesome-gadget&id=123";
+
+      // Inline QR (small)
+      const inlineQrEl = document.getElementById('inlineQR');
+      const inlineQr = new QRCode(inlineQrEl, {
+        text: PAYMENT_URL,
+        width: 140,
+        height: 140,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+
+      // Modal QR (larger)
+      const modalQrEl = document.getElementById('modalQR');
+      let modalQr = new QRCode(modalQrEl, {
+        text: PAYMENT_URL,
+        width: 200,
+        height: 200,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      // Buttons + behaviour
+      const buyBtn = document.getElementById('buyBtn');
+      const qrModal = document.getElementById('qrModal');
+      const backdrop = document.getElementById('backdrop');
+      const closeModal = document.getElementById('closeModal');
+      const openLink = document.getElementById('openLink');
+      const toggleInline = document.getElementById('toggleInline');
+
+      openLink.href = PAYMENT_URL;
+
+      // Show modal when clicking Buy
+      buyBtn.addEventListener('click', function() {
+        qrModal.classList.remove('hidden');
+        // ensure focus for accessibility
+        closeModal.focus();
+      });
+
+      // Close modal
+      closeModal.addEventListener('click', function() {
+        qrModal.classList.add('hidden');
+      });
+
+      // Close modal clicking outside content
+      backdrop.addEventListener('click', function(e) {
+        if (e.target === backdrop) qrModal.classList.add('hidden');
+      });
+
+      // Toggle inline QR visibility
+      let inlineVisible = true;
+      toggleInline.addEventListener('click', function() {
+        inlineVisible = !inlineVisible;
+        inlineQrEl.style.display = inlineVisible ? 'flex' : 'none';
+        toggleInline.textContent = inlineVisible ? 'Hide QR' : 'Show QR';
+      });
+
+      // Optional: when user scans and completes payment you can update UI server-side
+      // (not in client-side demo).
+    })();
+  </script>
+  </div>
+
+  
+</body>
+</html>
